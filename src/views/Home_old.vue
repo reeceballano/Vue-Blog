@@ -6,10 +6,8 @@
 
 	<vue-paginate-al :totalPage="numberOfLinks" @btnClick="goToFunction"></vue-paginate-al>
 
-	<p>{{ pagination }}</p>
-
+	<p>{{ postCount }}</p>
   </div>
-
 </template>
 
 <script>
@@ -22,31 +20,33 @@ export default {
 	data() {
 		return {
 			currentPage: 1,
-			numberOfLinks: 2,
+			numberOfLinks: 0,
 		}
 	},
 
 	mounted: function() {
 		this.goToFunction(this.currentPage)
-		this.$store.dispatch('countPost')
 	},
 
 	computed: {
 		...mapState([
-			'postCount',
 			'posts',
 		]),
 
+		/**
+			Get the number of posts (ALL POSTS) then divide 5 (number post to display in view, you can edit in store.js).
+		*/
+		postCount() {
+			axios.get('http://vue-wp-3.test/wp-json/wp/v2/posts')
+			.then((response) => {
 
-		pagination() {
-			let totalPost = this.$store.getters.postCount;
-			let limitPost = this.$store.getters.limitPost;
-			let result = Math.round((totalPost / limitPost).toFixed(2));
+				let x = response.headers['x-wp-total'];
+				let y = Math.round((x / 10).toFixed(2));
 
-			this.numberOfLinks = result;
+				this.numberOfLinks = y;
 
-			//return result;
-
+				return y;
+			})
 		},
 
 
